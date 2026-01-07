@@ -1,0 +1,9 @@
+{
+  "name": "factchecker",
+  "description": "A skeptical conversational AI assistant for verifying news, social media, and visual content.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone",
+    "geolocation"
+  ]
+}
