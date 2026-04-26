@@ -146,9 +146,8 @@ async function search(queries: string[], log: LogCallback): Promise<Source[]> {
 
 async function scrape(sources: Source[], log: LogCallback): Promise<{ url: string; title: string; content: string }[]> {
   const { jina } = getKeys();
-  const scraped: { url: string; title: string; content: string }[] = [];
-
-  for (const source of sources) {
+  
+  const scrapeSource = async (source: Source) => {
     let host = source.url;
     try { host = new URL(source.url).hostname.replace("www.", ""); } catch { /* ignore */ }
     log({ phase: "scraping", message: `Agent is reading article from ${host}…` });
@@ -159,22 +158,24 @@ async function scrape(sources: Source[], log: LogCallback): Promise<{ url: strin
 
       const res = await axios.get(`https://r.jina.ai/${source.url}`, {
         headers,
-        timeout: 20000,
+        timeout: 45000,
         responseType: "text",
       });
 
-      const content = typeof res.data === "string" ? res.data.slice(0, 5000) : JSON.stringify(res.data).slice(0, 5000);
-      scraped.push({ url: source.url, title: source.title, content });
+      const content = typeof res.data === "string" ? res.data.slice(0, 4000) : JSON.stringify(res.data).slice(0, 4000);
+      return { url: source.url, title: source.title, content };
     } catch (e: any) {
       log({ phase: "error", message: `Failed to read ${host}: ${e.message}` });
       // Use snippet as fallback
       if (source.snippet) {
-        scraped.push({ url: source.url, title: source.title, content: source.snippet });
+        return { url: source.url, title: source.title, content: source.snippet };
       }
+      return null;
     }
-  }
+  };
 
-  return scraped;
+  const results = await Promise.all(sources.map(scrapeSource));
+  return results.filter((r): r is { url: string; title: string; content: string } => r !== null);
 }
 
 // ─── Phase 4 + 5 – Analysis & Verdict ────────────────────────────────────────
@@ -195,9 +196,22 @@ async function analyzeAndVerdict(
     };
   }
 
-  const docsBlock = scrapedDocs.map((d, i) =>
-    `--- SOURCE ${i + 1} ---\nURL: ${d.url}\nTITLE: ${d.title}\nCONTENT:\n${d.content}`
-  ).join("\n\n");
+  const generateBlock = (docs: { url: string; title: string; content: string }[]) => 
+    docs.map((d, i) => `--- SOURCE ${i + 1} ---\nURL: ${d.url}\nTITLE: ${d.title}\nCONTENT:\n${d.content}`).join("\n\n");
+
+  let docsBlock = generateBlock(scrapedDocs);
+
+  if (docsBlock.length > 25000) {
+    log({ phase: "analyzing", message: `Evidence too large (${docsBlock.length} chars). Pruning sources…` });
+    let prunedDocs = [...scrapedDocs];
+    while (docsBlock.length > 25000 && prunedDocs.length > 1) {
+      prunedDocs.pop();
+      docsBlock = generateBlock(prunedDocs);
+    }
+    if (docsBlock.length > 25000) {
+      docsBlock = docsBlock.slice(0, 25000);
+    }
+  }
 
   const prompt = `You are a senior fact-checker at a world-class investigative journalism outlet. 
 Analyze the following scraped sources in relation to this claim: "${claim}"
