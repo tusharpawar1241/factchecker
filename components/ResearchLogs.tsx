@@ -10,12 +10,12 @@ interface ResearchLogsProps {
 }
 
 const PHASE_META: Record<LogEntry["phase"], { icon: React.ElementType; color: string; bg: string; border: string; label: string }> = {
-  planning:  { icon: Brain,        color: "text-purple-400",  bg: "bg-purple-400/10", border: "border-purple-400/20", label: "PLAN" },
-  searching: { icon: Search,       color: "text-blue-400",    bg: "bg-blue-400/10",   border: "border-blue-400/20",   label: "SEARCH" },
-  scraping:  { icon: FileSearch,   color: "text-teal-400",    bg: "bg-teal-400/10",   border: "border-teal-400/20",   label: "SCRAPE" },
-  analyzing: { icon: Brain,        color: "text-yellow-400",  bg: "bg-yellow-400/10", border: "border-yellow-400/20", label: "ANALYZE" },
-  verdict:   { icon: BarChart3,    color: "text-green-400",   bg: "bg-green-400/10",  border: "border-green-400/20",  label: "VERDICT" },
-  error:     { icon: AlertTriangle, color: "text-red-400",    bg: "bg-red-400/10",    border: "border-red-400/20",    label: "ERROR" },
+  planning:  { icon: Brain,        color: "text-purple-600 dark:text-purple-400",  bg: "bg-purple-500/5 dark:bg-purple-400/10", border: "border-purple-500/10 dark:border-purple-400/20", label: "PLAN" },
+  searching: { icon: Search,       color: "text-blue-600 dark:text-blue-400",    bg: "bg-blue-500/5 dark:bg-blue-400/10",   border: "border-blue-500/10 dark:border-blue-400/20",   label: "SEARCH" },
+  scraping:  { icon: FileSearch,   color: "text-teal-600 dark:text-teal-400",    bg: "bg-teal-500/5 dark:bg-teal-400/10",   border: "border-teal-500/10 dark:border-teal-400/20",   label: "SCRAPE" },
+  analyzing: { icon: Brain,        color: "text-amber-600 dark:text-yellow-400",  bg: "bg-amber-500/5 dark:bg-yellow-400/10", border: "border-amber-500/10 dark:border-yellow-400/20", label: "ANALYZE" },
+  verdict:   { icon: BarChart3,    color: "text-green-600 dark:text-green-400",   bg: "bg-green-500/5 dark:bg-green-400/10",  border: "border-green-500/10 dark:border-green-400/20",  label: "VERDICT" },
+  error:     { icon: AlertTriangle, color: "text-red-600 dark:text-red-400",    bg: "bg-red-500/5 dark:bg-red-400/10",    border: "border-red-500/10 dark:border-red-400/20",    label: "ERROR" },
 };
 
 const ResearchLogs: React.FC<ResearchLogsProps> = ({ logs, isRunning }) => {
@@ -26,13 +26,21 @@ const ResearchLogs: React.FC<ResearchLogsProps> = ({ logs, isRunning }) => {
   }, [logs]);
 
   return (
-    <div className="flex flex-col bg-white/5 backdrop-blur-2xl rounded-[2rem] border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.3),inset_0px_1px_1px_rgba(255,255,255,0.1)]">
+    <div className="glass-panel flex flex-col
+      bg-white/40 dark:bg-[#1A1A1A]/70
+      backdrop-blur-3xl rounded-[2.5rem]
+      border-2 border-white/70 dark:border-white/10 dark:border
+      shadow-[0_20px_60px_rgba(0,0,0,0.05)]
+      dark:shadow-[0_30px_80px_-20px_rgba(33,150,243,0.4),inset_0_2px_5px_rgba(255,255,255,0.1)]
+      overflow-hidden">
       {/* Header */}
-      <div className="flex items-center gap-3 px-6 py-5 border-b border-white/5 bg-white/[0.02]">
-        <div className="p-2 bg-white/5 rounded-lg border border-white/10 shadow-[inset_0px_1px_1px_rgba(255,255,255,0.1)]">
-          <Terminal className="w-5 h-5 text-indigo-300" />
+      <div className="flex items-center gap-4 px-8 py-6 border-b border-white/50 dark:border-white/5 bg-white/20 dark:bg-[#1A1A1A]/40">
+        <div className="p-2.5 bg-white/50 dark:bg-white/5 rounded-xl backdrop-blur-md
+          border border-white/80 dark:border-white/10
+          shadow-sm dark:shadow-[0_8px_16px_rgba(0,0,0,0.4),inset_0_1px_2px_rgba(255,255,255,0.1)] text-indigo-500 dark:text-[#2196F3]">
+          <Terminal className="w-5 h-5 dark:drop-shadow-[0_0_8px_rgba(33,150,243,0.6)]" />
         </div>
-        <span className="text-base font-bold tracking-wide text-white drop-shadow-md">Evidence Board</span>
+        <span className="text-base font-bold tracking-wide text-gray-800 dark:text-white">Evidence Board</span>
         
         {isRunning && (
           <span className="ml-auto flex items-center gap-2 text-xs font-bold text-teal-400 tracking-wider uppercase bg-teal-400/10 px-3 py-1.5 rounded-full border border-teal-400/20">
@@ -57,7 +65,7 @@ const ResearchLogs: React.FC<ResearchLogsProps> = ({ logs, isRunning }) => {
           {logs.length === 0 && !isRunning && (
             <motion.div 
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              className="h-full flex flex-col items-center justify-center text-white/30 gap-4"
+              className="h-full flex flex-col items-center justify-center text-slate-400 dark:text-white/30 gap-4"
             >
               <Terminal className="w-12 h-12 opacity-20" />
               <span className="font-medium tracking-wide">Awaiting research task...</span>
@@ -74,24 +82,30 @@ const ResearchLogs: React.FC<ResearchLogsProps> = ({ logs, isRunning }) => {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 transition={{ type: "spring", bounce: 0.4, duration: 0.6 }}
                 className={cn(
-                  "flex items-start gap-4 p-4 rounded-2xl border backdrop-blur-md transition-all shadow-[0_4px_20px_rgba(0,0,0,0.1),inset_0px_1px_1px_rgba(255,255,255,0.05)]",
+                  "flex items-start gap-4 p-5 rounded-[1.5rem] border backdrop-blur-2xl transition-all",
+                  "shadow-[0_10px_25px_rgba(0,0,0,0.03),inset_0_2px_5px_rgba(255,255,255,0.8)] dark:shadow-[0_10px_30px_rgba(0,0,0,0.3),inset_0_1px_2px_rgba(255,255,255,0.05)]",
                   meta.bg, meta.border
                 )}
               >
-                <div className={cn("p-2 rounded-xl bg-white/10 shadow-inner", meta.color)}>
-                  <Icon className="w-4 h-4" />
+                {/* Icon badge — light: frosted pill with color glow */}
+                <div className={cn(
+                  "p-3 rounded-xl bg-white/70 dark:bg-white/5",
+                  "shadow-[0_6px_14px_rgba(0,0,0,0.04),inset_0_2px_4px_rgba(255,255,255,0.9)] dark:shadow-[inset_0_1px_2px_rgba(255,255,255,0.1)]",
+                  meta.color
+                )}>
+                  <Icon className="w-5 h-5" />
                 </div>
                 <div className="flex-1 pt-1">
                   <div className="flex items-center gap-2 mb-1">
                     <span className={cn("text-[10px] font-black uppercase tracking-widest", meta.color)}>
                       {meta.label}
                     </span>
-                    <span className="text-[10px] font-mono text-white/30">{entry.timestamp}</span>
+                    <span className="text-[10px] font-mono text-slate-400 dark:text-white/30">{entry.timestamp}</span>
                   </div>
                   <p className={cn(
                     "font-medium leading-relaxed drop-shadow-sm",
-                    entry.phase === "error" ? "text-red-200" : "text-white/80",
-                    entry.phase === "verdict" && "text-green-200 font-bold"
+                    entry.phase === "error" ? "text-red-700 dark:text-red-200" : "text-slate-700 dark:text-white/80",
+                    entry.phase === "verdict" && "text-green-700 dark:text-green-200 font-bold"
                   )}>
                     {entry.message}
                   </p>
@@ -104,10 +118,21 @@ const ResearchLogs: React.FC<ResearchLogsProps> = ({ logs, isRunning }) => {
         {isRunning && (
           <motion.div 
             initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-            className="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md"
+            className="flex items-center gap-4 p-5 rounded-[1.5rem]
+              bg-gradient-to-br from-[#33C6CC]/10 to-[#8A2BE2]/5 dark:bg-[#1A1A1A]/80
+              border border-[#33C6CC]/20 dark:border-[#2196F3]/30
+              backdrop-blur-2xl
+              shadow-[0_12px_30px_rgba(51,198,204,0.1),inset_0_3px_6px_rgba(255,255,255,0.9)]
+              dark:shadow-[0_10px_30px_-5px_rgba(33,150,243,0.4),inset_0_2px_5px_rgba(255,255,255,0.1)]"
           >
-            <div className="p-2 rounded-xl bg-white/5 text-teal-400">
-              <Search className="w-4 h-4 animate-spin" />
+            {/* Loading spinner badge — liquid teal gel in light */}
+            <div className="relative flex items-center justify-center p-3 rounded-xl
+              bg-white/70 dark:bg-transparent
+              shadow-[0_6px_14px_rgba(51,198,204,0.15),inset_0_2px_4px_rgba(255,255,255,0.9)] dark:shadow-none
+              text-[#33C6CC] dark:text-[#2196F3]">
+              <div className="absolute inset-0 border-2 border-transparent dark:border-[#2196F3]/50 rounded-xl dark:shadow-[0_0_15px_rgba(33,150,243,0.5),inset_0_0_10px_rgba(33,150,243,0.5)]"></div>
+              <Search className="w-5 h-5 animate-spin dark:opacity-0" />
+              <div className="absolute inset-0 flex items-center justify-center font-black text-xs text-transparent hidden dark:flex dark:text-[#2196F3] dark:drop-shadow-[0_0_5px_rgba(33,150,243,0.8)] animate-pulse">44</div>
             </div>
             <div className="flex gap-1.5 items-center pt-1">
               {[0, 1, 2].map(i => (

@@ -20,14 +20,14 @@ const SettingsDrawer: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 
   const Field = ({ id, label }: { id: keyof typeof keys; label: string }) => (
     <div className="space-y-1.5">
-      <label className="text-xs font-semibold text-white/60 uppercase tracking-wider">{label}</label>
+      <label className="text-xs font-semibold text-slate-500 dark:text-white/60 uppercase tracking-wider">{label}</label>
       <input
         type="password"
         value={keys[id]}
         onChange={e => setKeys(p => ({ ...p, [id]: e.target.value }))}
-        className="w-full bg-black/20 backdrop-blur-md border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white
-          placeholder-white/30 focus:outline-none focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400/50 transition-all
-          shadow-[inset_0px_2px_4px_rgba(0,0,0,0.3)]"
+        className="w-full bg-white/40 dark:bg-[#2A2A2A]/60 backdrop-blur-xl border border-white/60 dark:border-white/10 rounded-2xl px-5 py-3 text-sm text-slate-800 dark:text-white
+          placeholder-slate-500 dark:placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#8A2BE2]/50 dark:focus:ring-[#2196F3]/50 transition-all
+          shadow-[inset_2px_2px_6px_rgba(0,0,0,0.05),inset_-2px_-2px_6px_rgba(255,255,255,0.8)] dark:shadow-[inset_2px_2px_6px_rgba(0,0,0,0.4),inset_-1px_-1px_2px_rgba(255,255,255,0.05)]"
         placeholder={`Enter ${label}…`}
       />
     </div>
@@ -47,20 +47,20 @@ const SettingsDrawer: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           animate={{ x: 0 }}
           exit={{ x: "100%" }}
           transition={{ type: "spring", bounce: 0, duration: 0.4 }}
-          className="h-full w-80 bg-white/5 backdrop-blur-2xl border-l border-white/10 shadow-[-10px_0_30px_rgba(0,0,0,0.3)] p-6 flex flex-col gap-6 overflow-y-auto"
+          className="glass-panel h-full w-80 bg-white/30 dark:bg-[#1A1A1A]/80 backdrop-blur-3xl border-l border-white/60 dark:border-white/10 shadow-[-20px_0_60px_rgba(0,0,0,0.05),inset_2px_0_4px_rgba(255,255,255,0.8)] dark:shadow-[-20px_0_60px_rgba(0,0,0,0.5),-10px_0_40px_rgba(33,150,243,0.1),inset_1px_0_2px_rgba(255,255,255,0.1)] p-6 flex flex-col gap-6 overflow-y-auto"
         >
           <div className="flex items-center justify-between">
-            <span className="font-bold text-white tracking-wide">API Keys</span>
-            <button onClick={onClose} className="text-white/50 hover:text-white transition-colors">✕</button>
+            <span className="font-bold text-slate-900 dark:text-white tracking-wide">API Keys</span>
+            <button onClick={onClose} className="text-slate-400 dark:text-white/50 hover:text-slate-900 dark:hover:text-white transition-colors">✕</button>
           </div>
-          <Field id="gemini" label="Gemini" />
+          <Field id="groq" label="Groq" />
           <Field id="tavily" label="Tavily" />
           <Field id="jina" label="Jina (optional)" />
           <button onClick={handle}
-            disabled={!keys.gemini || !keys.tavily}
-            className="py-3 rounded-xl text-sm font-bold bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-400 hover:to-purple-400
-              shadow-[inset_0px_1px_1px_rgba(255,255,255,0.4),0_0_20px_rgba(99,102,241,0.4)] border border-white/20
-              disabled:opacity-40 disabled:cursor-not-allowed text-white transition-all transform active:scale-95">
+            disabled={!keys.groq || !keys.tavily}
+            className="py-3.5 rounded-2xl text-sm font-bold bg-[#8A2BE2] dark:bg-[#2196F3] hover:bg-[#7b24cc] dark:hover:bg-[#1e88e5]
+              shadow-[0_8px_20px_rgba(138,43,226,0.3),inset_2px_4px_8px_rgba(255,255,255,0.4)] dark:shadow-[0_8px_25px_rgba(33,150,243,0.4),inset_1px_2px_4px_rgba(255,255,255,0.3)] border border-white/20
+              disabled:opacity-50 disabled:cursor-not-allowed text-white transition-all transform active:scale-[0.97]">
             {saved ? "✓ Saved" : "Save Keys"}
           </button>
         </motion.div>
@@ -106,10 +106,7 @@ const Dashboard: React.FC = () => {
       const result = await runResearch(claim.trim(), addLog);
       setVerdict(result);
     } catch (err: any) {
-      const isRateLimit = err.message?.includes("429") || err.message?.includes("Quota exceeded");
-      const msg = isRateLimit 
-        ? "⚠️ Rate Limit Reached: The AI is cooling down. Please wait 60 seconds and try again."
-        : (err.message || "Unknown error");
+      const msg = err.message || "Unknown error";
       setError(msg);
       addLog({ phase: "error", message: msg });
     } finally {
@@ -130,11 +127,11 @@ const Dashboard: React.FC = () => {
   }
 
   return (
-    <div className="relative h-screen text-white flex flex-col overflow-y-auto overflow-x-hidden font-sans scrollbar-thin">
+    <div className="relative h-screen text-[#1C1C1E] dark:text-white flex flex-col overflow-y-auto overflow-x-hidden font-sans scrollbar-thin">
       
-      {/* Dynamic ambient blobs for glassmorphism background */}
-      <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[60%] bg-indigo-600/20 rounded-full blur-[120px] mix-blend-screen pointer-events-none" />
-      <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[60%] bg-purple-600/20 rounded-full blur-[120px] mix-blend-screen pointer-events-none" />
+      {/* Soft ambient light bleed — light: diffused warm tones; dark: electric blue */}
+      <div className="absolute top-[-10%] left-[-5%] w-[45%] h-[55%] bg-[#33C6CC]/15 dark:bg-[#2196F3]/15 rounded-full blur-[180px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-5%] w-[45%] h-[55%] bg-[#8A2BE2]/12 dark:bg-[#2196F3]/10 rounded-full blur-[180px] pointer-events-none" />
 
       {/* Header */}
       <motion.header 
@@ -143,13 +140,14 @@ const Dashboard: React.FC = () => {
         transition={{ duration: 0.6, ease: "easeOut" }}
         className="relative z-10 flex items-center justify-between px-8 py-6"
       >
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl shadow-[inset_0px_1px_1px_rgba(255,255,255,0.2)]">
-            <Shield className="w-6 h-6 text-indigo-400 drop-shadow-[0_0_8px_rgba(129,140,248,0.8)]" />
+        <div className="flex items-center gap-4">
+          {/* Logo */}
+          <div className="p-3 bg-white/50 dark:bg-white/5 backdrop-blur-md border border-white/80 dark:border-white/10 rounded-2xl shadow-sm dark:shadow-[0_8px_16px_rgba(0,0,0,0.4),inset_0_1px_2px_rgba(255,255,255,0.1)] text-indigo-500 dark:text-[#2196F3]">
+            <Shield className="w-6 h-6 dark:drop-shadow-[0_0_8px_rgba(33,150,243,0.6)]" />
           </div>
           <div>
-            <h1 className="text-xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-white/60">Verifai</h1>
-            <p className="text-xs text-white/50 font-medium">Deep Research Agent</p>
+            <h1 className="text-xl font-extrabold tracking-tight text-[#1C1C1E] dark:text-white">Verifai</h1>
+            <p className="text-xs text-[#8E8E93] dark:text-white/50 font-medium">Deep Research Agent</p>
           </div>
         </div>
 
@@ -160,16 +158,15 @@ const Dashboard: React.FC = () => {
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.8 }}
-                onClick={handleReset} 
-                title="Start over"
-                className="p-2.5 text-white/70 hover:text-white bg-white/5 hover:bg-white/10 backdrop-blur-md border border-white/10 rounded-xl transition-all shadow-[inset_0px_1px_1px_rgba(255,255,255,0.1)] active:scale-95">
-                <RefreshCw className="w-4 h-4" />
+                onClick={handleReset}
+                className="p-3 bg-white/50 dark:bg-white/5 backdrop-blur-md border border-white/80 dark:border-white/10 rounded-xl shadow-sm dark:shadow-[0_8px_16px_rgba(0,0,0,0.4),inset_0_1px_2px_rgba(255,255,255,0.1)] text-indigo-500 dark:text-white/80 transition-all active:scale-95">
+                <RefreshCw className="w-5 h-5" />
               </motion.button>
             )}
           </AnimatePresence>
           <button onClick={() => setShowSettings(true)} title="API Settings"
-            className="p-2.5 text-white/70 hover:text-white bg-white/5 hover:bg-white/10 backdrop-blur-md border border-white/10 rounded-xl transition-all shadow-[inset_0px_1px_1px_rgba(255,255,255,0.1)] active:scale-95">
-            <Settings className="w-4 h-4" />
+            className="p-3 bg-white/50 dark:bg-white/5 backdrop-blur-md border border-white/80 dark:border-white/10 rounded-xl shadow-sm dark:shadow-[0_8px_16px_rgba(0,0,0,0.4),inset_0_1px_2px_rgba(255,255,255,0.1)] text-indigo-500 dark:text-white/80 transition-all active:scale-95">
+            <Settings className="w-5 h-5" />
           </button>
         </div>
       </motion.header>
@@ -185,34 +182,48 @@ const Dashboard: React.FC = () => {
         className="relative z-10 px-6 md:px-10 mt-12 pt-4 pb-8"
       >
         <div className="max-w-3xl mx-auto">
-          <h2 className="text-4xl md:text-5xl font-black tracking-tight mb-4 text-center drop-shadow-lg">
-            Is it <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-teal-400">actually true?</span>
+          <h2 className="text-4xl md:text-5xl font-black tracking-tight mb-4 text-center text-[#1C1C1E] dark:text-white">
+            Is it <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#8A2BE2] to-[#33C6CC]">actually true?</span>
           </h2>
-          <p className="text-center text-white/60 text-sm mb-10 font-medium">
+          <p className="text-center text-[#8E8E93] dark:text-white/60 text-sm mb-10 font-medium">
             Paste a headline, claim, or viral post. The agent will search, scrape, and cross-reference multiple sources in real time.
           </p>
 
-          <form onSubmit={handleSubmit} className="flex gap-4 p-2 bg-white/5 backdrop-blur-xl border border-white/10 rounded-[2rem] shadow-[0_8px_32px_rgba(0,0,0,0.3),inset_0px_1px_1px_rgba(255,255,255,0.1)]">
-            <div className="flex-1 relative flex items-center">
-              <Search className="absolute left-5 w-5 h-5 text-white/40 pointer-events-none" />
-              <input
-                type="text"
-                value={claim}
-                onChange={e => setClaim(e.target.value)}
-                disabled={isRunning}
-                placeholder="e.g. Government bans all social media by 2025…"
-                className="w-full bg-transparent pl-14 pr-6 py-4 text-base
-                  text-white placeholder-white/30 focus:outline-none transition-all disabled:opacity-60"
-              />
-            </div>
+          {/* Colorful Ambient Glow & Search Bar */}
+          <div className="relative">
+            <div className="absolute -inset-4 bg-gradient-to-r from-purple-400 via-pink-300 to-cyan-400 opacity-30 blur-2xl rounded-full dark:hidden"></div>
+            <form onSubmit={handleSubmit} className="relative flex gap-3 p-2
+              bg-white/40 dark:bg-[#1A1A1A]/60
+              backdrop-blur-xl
+              border-2 border-white/70 dark:border-white/10
+              rounded-[3rem]
+              shadow-[0_8px_32px_rgba(0,0,0,0.04)]
+              dark:shadow-[0_30px_60px_-15px_rgba(33,150,243,0.3),inset_0_2px_5px_rgba(255,255,255,0.1)]
+              text-gray-800 dark:text-white">
+              <div className="flex-1 relative flex items-center">
+                <Search className="absolute left-6 w-5 h-5 text-gray-400 pointer-events-none" />
+                <input
+                  type="text"
+                  value={claim}
+                  onChange={(e) => setClaim(e.target.value)}
+                  placeholder="Paste a headline, claim, or URL..."
+                  className="w-full bg-transparent border-none text-gray-800 dark:text-white placeholder-gray-400 pl-16 pr-6 py-4 text-[17px] focus:outline-none focus:ring-0"
+                  disabled={isRunning}
+                />
+              </div>
+            {/* Purple Liquid Gel Button */}
             <button
               type="submit"
               disabled={!claim.trim() || isRunning}
               className={cn(
-                "px-8 py-4 rounded-full text-sm font-bold transition-all whitespace-nowrap",
-                "bg-gradient-to-r from-indigo-500 to-teal-500 hover:from-indigo-400 hover:to-teal-400",
-                "disabled:opacity-40 disabled:cursor-not-allowed",
-                "flex items-center gap-2 shadow-[0_0_20px_rgba(99,102,241,0.4),inset_0px_1px_1px_rgba(255,255,255,0.4)] border border-white/20 active:scale-95"
+                "px-8 py-4 rounded-[2.5rem] text-[15px] font-medium text-white transition-all whitespace-nowrap flex items-center gap-2",
+                "bg-gradient-to-br from-[#A855F7] to-[#7C3AED]",
+                "dark:from-[#2196F3] dark:to-[#1565C0]",
+                "border border-purple-300/50 dark:border-white/20",
+                "shadow-[inset_0_2px_4px_rgba(255,255,255,0.6)] drop-shadow-[0_10px_15px_rgba(124,58,237,0.4)]",
+                "dark:shadow-[0_10px_25px_-5px_rgba(33,150,243,0.6),inset_0_1px_0_rgba(255,255,255,0.4)] dark:drop-shadow-none",
+                "disabled:opacity-50 disabled:cursor-not-allowed",
+                "active:scale-[0.98]"
               )}
             >
               {isRunning ? (
@@ -228,6 +239,7 @@ const Dashboard: React.FC = () => {
               )}
             </button>
           </form>
+          </div>
 
           {/* Missing keys inline alert */}
           <AnimatePresence>
@@ -236,11 +248,15 @@ const Dashboard: React.FC = () => {
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                className="mt-6 flex items-center gap-3 text-sm text-white bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl px-5 py-4 shadow-[0_4px_20px_rgba(0,0,0,0.2)]"
+                className="mt-6 flex items-center gap-3 text-sm text-gray-800 dark:text-white
+                  bg-white/60 dark:bg-white/5 backdrop-blur-2xl
+                  border border-white/80 dark:border-white/10
+                  rounded-2xl px-6 py-4
+                  shadow-[0_12px_30px_rgba(251,191,36,0.1),inset_0_2px_5px_rgba(255,255,255,0.9)] dark:shadow-[0_10px_30px_rgba(0,0,0,0.3),inset_1px_1px_2px_rgba(255,255,255,0.1)]"
               >
                 <div className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
                 <span>API keys required ({missingKeys().join(", ")}).</span>
-                <button onClick={() => setShowSettings(true)} className="ml-auto font-bold text-amber-300 hover:text-amber-200">Configure now →</button>
+                <button onClick={() => setShowSettings(true)} className="ml-auto font-bold text-amber-500 hover:text-amber-600 dark:text-amber-300 dark:hover:text-amber-200">Configure now →</button>
               </motion.div>
             )}
 
@@ -249,21 +265,9 @@ const Dashboard: React.FC = () => {
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                className={cn(
-                  "mt-6 text-sm backdrop-blur-md border rounded-2xl px-5 py-4 shadow-[0_4px_20px_rgba(0,0,0,0.2)]",
-                  error.includes("Rate Limit") 
-                    ? "text-amber-200 bg-amber-500/10 border-amber-500/30 shadow-[0_4px_20px_rgba(245,158,11,0.2)]" 
-                    : "text-red-200 bg-red-500/10 border-red-500/30 shadow-[0_4px_20px_rgba(239,68,68,0.2)]"
-                )}
+                className="mt-6 text-sm backdrop-blur-2xl border rounded-2xl px-6 py-4 shadow-[0_10px_30px_rgba(0,0,0,0.05),inset_2px_2px_4px_rgba(255,255,255,0.6)] dark:shadow-[0_10px_30px_rgba(0,0,0,0.3),inset_1px_1px_2px_rgba(255,255,255,0.1)] text-red-800 dark:text-red-200 bg-red-500/10 border-red-500/20"
               >
-                {error.includes("Rate Limit") ? (
-                  <div className="flex items-center gap-3">
-                    <span className="shrink-0">⚠️</span>
-                    <span className="font-medium">{error.replace("⚠️ ", "")}</span>
-                  </div>
-                ) : (
-                  <p><span className="font-bold uppercase tracking-tight mr-2">Error:</span>{error}</p>
-                )}
+                <p><span className="font-bold uppercase tracking-tight mr-2">Error:</span>{error}</p>
               </motion.div>
             )}
           </AnimatePresence>
@@ -291,15 +295,24 @@ const Dashboard: React.FC = () => {
                 {verdict ? (
                   <VerdictCard verdict={verdict} headline={claim} />
                 ) : (
-                  <div className="h-full flex flex-col items-center justify-center text-white/40 gap-4 rounded-3xl border border-white/5 bg-white/[0.02] backdrop-blur-xl p-8 text-center shadow-[0_8px_32px_rgba(0,0,0,0.2)]">
+                  <div className="glass-panel h-full min-h-[300px] flex flex-col items-center justify-center gap-5 rounded-[2.5rem]
+                    border border-white/60 dark:border-white/10
+                    bg-white/40 dark:bg-[#1A1A1A]/70
+                    backdrop-blur-3xl p-8 text-center
+                    shadow-[0_20px_60px_rgba(0,0,0,0.05),inset_1px_1px_0_rgba(255,255,255,0.8)]
+                    dark:shadow-[0_20px_60px_rgba(0,0,0,0.5),inset_1px_1px_2px_rgba(255,255,255,0.1)]">
+                    {/* Spinning shield — liquid gel pill with cyan glow in light */}
                     <motion.div 
                       animate={{ rotate: 360 }} 
                       transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-                      className="p-4 rounded-full bg-white/5 border border-white/10"
+                      className="p-4 rounded-3xl
+                        bg-gradient-to-br from-[#33C6CC]/20 to-[#8A2BE2]/10 dark:bg-[#2A2A2A]/80
+                        border border-white/80 dark:border-white/10
+                        shadow-[0_8px_20px_rgba(51,198,204,0.15),inset_0_2px_5px_rgba(255,255,255,0.9)] dark:shadow-[0_4px_15px_rgba(0,0,0,0.4),inset_1px_1px_2px_rgba(255,255,255,0.1)]"
                     >
-                      <Shield className="w-10 h-10 opacity-50" />
+                      <Shield className="w-10 h-10 text-[#33C6CC] dark:text-white/30 drop-shadow-[0_0_6px_rgba(51,198,204,0.5)] dark:drop-shadow-none" />
                     </motion.div>
-                    <p className="text-sm font-medium">Synthesizing evidence...<br/>Verdict will appear here.</p>
+                    <p className="text-[15px] font-medium leading-relaxed text-gray-500 dark:text-white/40">Synthesizing evidence...<br/>Verdict will appear here.</p>
                   </div>
                 )}
               </div>
@@ -314,9 +327,9 @@ const Dashboard: React.FC = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.5, duration: 1 }}
-        className="relative z-10 mt-auto px-10 py-6 border-t border-white/5 flex items-center justify-between text-xs text-white/40 font-medium"
+        className="relative z-10 mt-auto px-10 py-6 border-t border-black/5 dark:border-white/5 flex items-center justify-between text-xs text-gray-400 dark:text-white/40 font-medium"
       >
-        <span>Verifai • Powered by Gemini 2.0 Flash + Tavily + Jina</span>
+        <span>Verifai • Powered by Groq (Llama 3.1) + Tavily + Jina</span>
         <span>Local Privacy First</span>
       </motion.footer>
     </div>

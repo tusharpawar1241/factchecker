@@ -1,4 +1,3 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import axios from "axios";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -31,14 +30,14 @@ export type LogCallback = (entry: Omit<LogEntry, "id" | "timestamp">) => void;
 
 export function getKeys() {
   return {
-    gemini: localStorage.getItem("gemini_key") || import.meta.env.VITE_GEMINI_API_KEY || "",
+    groq: localStorage.getItem("groq_key") || import.meta.env.VITE_GROQ_API_KEY || "",
     tavily: localStorage.getItem("tavily_key") || import.meta.env.VITE_TAVILY_API_KEY || "",
     jina:   localStorage.getItem("jina_key")   || import.meta.env.VITE_JINA_API_KEY   || "",
   };
 }
 
-export function saveKeys(keys: { gemini: string; tavily: string; jina: string }) {
-  if (keys.gemini) localStorage.setItem("gemini_key", keys.gemini);
+export function saveKeys(keys: { groq: string; tavily: string; jina: string }) {
+  if (keys.groq) localStorage.setItem("groq_key", keys.groq);
   if (keys.tavily) localStorage.setItem("tavily_key", keys.tavily);
   if (keys.jina)   localStorage.setItem("jina_key",   keys.jina);
 }
@@ -46,31 +45,42 @@ export function saveKeys(keys: { gemini: string; tavily: string; jina: string })
 export function missingKeys(): string[] {
   const k = getKeys();
   const missing: string[] = [];
-  if (!k.gemini) missing.push("GEMINI");
+  if (!k.groq) missing.push("GROQ");
   if (!k.tavily) missing.push("TAVILY");
   return missing;
 }
 
-// ─── Gemini helper ────────────────────────────────────────────────────────────
+// ─── Groq helper ────────────────────────────────────────────────────────────
 
 const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
-function genAI() {
-  const { gemini } = getKeys();
-  if (!gemini) throw new Error("Gemini API key not set.");
-  return new GoogleGenerativeAI(gemini).getGenerativeModel({ model: "gemini-2.0-flash" });
-}
+async function groqWithRetry<T>(prompt: string, retries = 2): Promise<T> {
+  const { groq } = getKeys();
+  if (!groq) throw new Error("Groq API key not set.");
 
-async function geminiWithRetry<T>(prompt: string, retries = 2): Promise<T> {
   try {
-    const result = await genAI().generateContent(prompt);
-    const raw = result.response.text().replace(/```json|```/g, "").trim();
+    const res = await axios.post(
+      "https://api.groq.com/openai/v1/chat/completions",
+      {
+        model: "llama-3.3-70b-versatile",
+        messages: [{ role: "user", content: prompt }],
+        response_format: { type: "json_object" }
+      },
+      {
+        headers: {
+          "Authorization": `Bearer ${groq}`,
+          "Content-Type": "application/json",
+        },
+        timeout: 30000,
+      }
+    );
+    const raw = res.data.choices[0].message.content.replace(/```json|```/g, "").trim();
     return JSON.parse(raw) as T;
   } catch (err: any) {
-    const is429 = err.message?.includes("429") || err.message?.includes("Quota");
+    const is429 = err.response?.status === 429 || err.message?.includes("429");
     if (is429 && retries > 0) {
       await delay(2000 + Math.random() * 2000);
-      return geminiWithRetry(prompt, retries - 1);
+      return groqWithRetry(prompt, retries - 1);
     }
     throw err;
   }
@@ -85,14 +95,15 @@ async function deconstruct(claim: string, log: LogCallback): Promise<string[]> {
 "${claim}"
 
 Break this into exactly 3 specific, objective, and distinct search queries that would help verify it from different angles.
-Return ONLY a valid JSON array of 3 strings. Example: ["query1", "query2", "query3"]`;
+Return ONLY a valid JSON object with a single key "queries" containing an array of 3 strings. Example: {"queries": ["query1", "query2", "query3"]}`;
 
   try {
-    const queries = await geminiWithRetry<string[]>(prompt);
+    const result = await groqWithRetry<{ queries: string[] }>(prompt);
+    const queries = result.queries || [];
     queries.forEach((q, i) => log({ phase: "planning", message: `Query ${i + 1}: "${q}"` }));
-    return queries;
+    return queries.slice(0, 3);
   } catch (e: any) {
-    log({ phase: "error", message: `Planning failed (Rate Limit?). Using fallback query.` });
+    log({ phase: "error", message: `Planning failed: ${e.message}. Using fallback query.` });
     return [claim];
   }
 }
@@ -210,17 +221,17 @@ Return ONLY valid JSON with this exact schema:
 
 truthScore rules: 0-20=FALSE, 21-40=MOSTLY FALSE, 41-60=MISLEADING or UNVERIFIED, 61-80=MOSTLY TRUE, 81-100=TRUE.`;
 
-  log({ phase: "analyzing", message: `Passing batch evidence to Gemini 2.0 Flash for final verdict…` });
+  log({ phase: "analyzing", message: `Passing batch evidence to Groq (Llama 3.3 70B) for final verdict…` });
 
   let parsed: Omit<ResearchVerdict, "sources">;
   try {
-    parsed = await geminiWithRetry<Omit<ResearchVerdict, "sources">>(prompt);
+    parsed = await groqWithRetry<Omit<ResearchVerdict, "sources">>(prompt);
     log({ phase: "verdict", message: `Verdict: ${parsed.label} (${parsed.truthScore}% truth score)` });
     if (parsed.contradictions?.length) {
       parsed.contradictions.forEach(c => log({ phase: "analyzing", message: `Contradiction found: ${c}` }));
     }
   } catch (e: any) {
-    log({ phase: "error", message: `Failed to parse Gemini verdict: ${e.message}` });
+    log({ phase: "error", message: `Failed to parse Groq verdict: ${e.message}` });
     parsed = {
       truthScore: 50, label: "UNVERIFIED",
       summary: "The analysis could not be fully completed due to a parsing error.",
@@ -234,23 +245,8 @@ truthScore rules: 0-20=FALSE, 21-40=MOSTLY FALSE, 41-60=MISLEADING or UNVERIFIED
 // ─── Main pipeline ────────────────────────────────────────────────────────────
 
 export async function runResearch(claim: string, log: LogCallback): Promise<ResearchVerdict> {
-  // Phase 1
   const queries = await deconstruct(claim, log);
-
-  // Throttling for Free Tier
-  log({ phase: "planning", message: "Cooling down API (4s delay)..." });
-  await delay(4000);
-
-  // Phase 2
   const sources = await search(queries, log);
-
-  // Phase 3
   const scraped = await scrape(sources, log);
-
-  // Throttling for Free Tier before final analysis
-  log({ phase: "analyzing", message: "Cooling down API (4s delay)..." });
-  await delay(4000);
-
-  // Phase 4 + 5
   return analyzeAndVerdict(claim, scraped, sources, log);
 }
