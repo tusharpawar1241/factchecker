@@ -1,7 +1,7 @@
 import { Verdict } from './types';
 
-export const GEMINI_MODEL_TEXT = 'gemini-3-flash-preview';
-export const GEMINI_MODEL_IMAGE = 'gemini-2.5-flash-image';
+export const GEMINI_MODEL_TEXT = 'gemini-2.0-flash';
+export const GEMINI_MODEL_IMAGE = 'gemini-2.0-flash';
 
 // The system instruction for the Veritas AI persona.
 // This is critical for guiding the model's behavior and output format.

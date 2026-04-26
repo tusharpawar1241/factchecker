@@ -2,7 +2,7 @@ import { GoogleGenAI, Part } from '@google/genai';
 import { FactCheckResponse, InputType, Verdict } from '../types';
 import { VERITAS_AI_SYSTEM_INSTRUCTION, GEMINI_MODEL_TEXT, GEMINI_MODEL_IMAGE } from '../constants';
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY || '' });
 
 // Helper function to convert Blob to base64
 async function blobToBase64(blob: Blob): Promise<string> {
@@ -82,7 +82,6 @@ export async function getFactCheckResponse(
   let model = GEMINI_MODEL_TEXT;
   // Fix: Declare parts as Part[] and wrap the system instruction in a text part
   const parts: Part[] = [];
-  parts.push({ text: VERITAS_AI_SYSTEM_INSTRUCTION }); // System instruction as the first part.
 
   let userPrompt = '';
 
@@ -132,15 +131,13 @@ export async function getFactCheckResponse(
   }
 
   try {
-    // Fix: `contents` object is now correctly formed with `Part[]`
-    const contents = {parts: parts};
-
     const response = await ai.models.generateContent({
       model: model,
-      contents: contents,
+      contents: parts,
       // Use googleSearch tool for more up-to-date and external information verification
       // This is crucial for a fact-checking assistant
       config: {
+        systemInstruction: VERITAS_AI_SYSTEM_INSTRUCTION,
         tools: [{googleSearch: {}}],
         temperature: 0.2, // Keep temperature low for factual tasks
         topP: 0.9,
