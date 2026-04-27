@@ -1,78 +1,13 @@
 import React, { useState, useCallback, useRef } from "react";
-import { Search, Settings, Shield, RefreshCw } from "lucide-react";
-import { runResearch, missingKeys, getKeys, saveKeys, LogEntry, ResearchVerdict } from "../services/researcher";
+import { Search, Shield, RefreshCw } from "lucide-react";
+import { runResearch, LogEntry, ResearchVerdict } from "../services/researcher";
 import ResearchLogs from "./ResearchLogs";
 import VerdictCard from "./VerdictCard";
-import ApiSetupGuide from "./ApiSetupGuide";
 import { cn } from "../lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 
-// ─── Settings Drawer (Liquid Glass) ──────────────────────────────────────────
-const SettingsDrawer: React.FC<{ onClose: () => void }> = ({ onClose }) => {
-  const [keys, setKeys] = useState(() => getKeys());
-  const [saved, setSaved] = useState(false);
-
-  const handle = () => {
-    saveKeys(keys);
-    setSaved(true);
-    setTimeout(() => { setSaved(false); onClose(); }, 900);
-  };
-
-  const Field = ({ id, label }: { id: keyof typeof keys; label: string }) => (
-    <div className="space-y-1.5">
-      <label className="text-xs font-semibold text-slate-500 dark:text-white/60 uppercase tracking-wider">{label}</label>
-      <input
-        type="password"
-        value={keys[id]}
-        onChange={e => setKeys(p => ({ ...p, [id]: e.target.value }))}
-        className="w-full bg-white/40 dark:bg-[#2A2A2A]/60 backdrop-blur-xl border border-white/60 dark:border-white/10 rounded-2xl px-5 py-3 text-sm text-slate-800 dark:text-white
-          placeholder-slate-500 dark:placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#8A2BE2]/50 dark:focus:ring-[#2196F3]/50 transition-all
-          shadow-[inset_2px_2px_6px_rgba(0,0,0,0.05),inset_-2px_-2px_6px_rgba(255,255,255,0.8)] dark:shadow-[inset_2px_2px_6px_rgba(0,0,0,0.4),inset_-1px_-1px_2px_rgba(255,255,255,0.05)]"
-        placeholder={`Enter ${label}…`}
-      />
-    </div>
-  );
-
-  return (
-    <AnimatePresence>
-      <motion.div 
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="absolute inset-0 z-50 flex items-start justify-end bg-black/40 backdrop-blur-sm" 
-        onClick={e => e.target === e.currentTarget && onClose()}
-      >
-        <motion.div 
-          initial={{ x: "100%" }}
-          animate={{ x: 0 }}
-          exit={{ x: "100%" }}
-          transition={{ type: "spring", bounce: 0, duration: 0.4 }}
-          className="glass-panel h-full w-80 bg-white/30 dark:bg-[#1A1A1A]/80 backdrop-blur-3xl border-l border-white/60 dark:border-white/10 shadow-[-20px_0_60px_rgba(0,0,0,0.05),inset_2px_0_4px_rgba(255,255,255,0.8)] dark:shadow-[-20px_0_60px_rgba(0,0,0,0.5),-10px_0_40px_rgba(33,150,243,0.1),inset_1px_0_2px_rgba(255,255,255,0.1)] p-6 flex flex-col gap-6 overflow-y-auto"
-        >
-          <div className="flex items-center justify-between">
-            <span className="font-bold text-slate-900 dark:text-white tracking-wide">API Keys</span>
-            <button onClick={onClose} className="text-slate-400 dark:text-white/50 hover:text-slate-900 dark:hover:text-white transition-colors">✕</button>
-          </div>
-          <Field id="groq" label="Groq" />
-          <Field id="tavily" label="Tavily" />
-          <Field id="jina" label="Jina (optional)" />
-          <button onClick={handle}
-            disabled={!keys.groq || !keys.tavily}
-            className="py-3.5 rounded-2xl text-sm font-bold bg-[#8A2BE2] dark:bg-[#2196F3] hover:bg-[#7b24cc] dark:hover:bg-[#1e88e5]
-              shadow-[0_8px_20px_rgba(138,43,226,0.3),inset_2px_4px_8px_rgba(255,255,255,0.4)] dark:shadow-[0_8px_25px_rgba(33,150,243,0.4),inset_1px_2px_4px_rgba(255,255,255,0.3)] border border-white/20
-              disabled:opacity-50 disabled:cursor-not-allowed text-white transition-all transform active:scale-[0.97]">
-            {saved ? "✓ Saved" : "Save Keys"}
-          </button>
-        </motion.div>
-      </motion.div>
-    </AnimatePresence>
-  );
-};
-
 // ─── Main Dashboard ───────────────────────────────────────────────────────────
 const Dashboard: React.FC = () => {
-  const [showSetup, setShowSetup] = useState(false);
-  const [showSettings, setShowSettings] = useState(false);
   const [claim, setClaim] = useState("");
   const [isRunning, setIsRunning] = useState(false);
   const [logs, setLogs] = useState<LogEntry[]>([]);
@@ -89,12 +24,6 @@ const Dashboard: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!claim.trim() || isRunning) return;
-
-    const missing = missingKeys();
-    if (missing.length > 0) {
-      setShowSetup(true);
-      return;
-    }
 
     setIsRunning(true);
     setVerdict(null);
@@ -121,10 +50,6 @@ const Dashboard: React.FC = () => {
     setError(null);
     logCounterRef.current = 0;
   };
-
-  if (showSetup) {
-    return <ApiSetupGuide onKeysSet={() => setShowSetup(false)} />;
-  }
 
   return (
     <div className="relative h-screen text-[#1C1C1E] dark:text-white flex flex-col overflow-y-auto overflow-x-hidden font-sans scrollbar-thin">
@@ -164,15 +89,8 @@ const Dashboard: React.FC = () => {
               </motion.button>
             )}
           </AnimatePresence>
-          <button onClick={() => setShowSettings(true)} title="API Settings"
-            className="p-3 bg-white/50 dark:bg-white/5 backdrop-blur-md border border-white/80 dark:border-white/10 rounded-xl shadow-sm dark:shadow-[0_8px_16px_rgba(0,0,0,0.4),inset_0_1px_2px_rgba(255,255,255,0.1)] text-indigo-500 dark:text-white/80 transition-all active:scale-95">
-            <Settings className="w-5 h-5" />
-          </button>
         </div>
       </motion.header>
-
-      {/* Settings Drawer */}
-      {showSettings && <SettingsDrawer onClose={() => setShowSettings(false)} />}
 
       {/* Claim Input */}
       <motion.div 
@@ -241,25 +159,8 @@ const Dashboard: React.FC = () => {
           </form>
           </div>
 
-          {/* Missing keys inline alert */}
+          {/* Error inline alert */}
           <AnimatePresence>
-            {missingKeys().length > 0 && !isRunning && (
-              <motion.div 
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className="mt-6 flex items-center gap-3 text-sm text-gray-800 dark:text-white
-                  bg-white/60 dark:bg-white/5 backdrop-blur-2xl
-                  border border-white/80 dark:border-white/10
-                  rounded-2xl px-6 py-4
-                  shadow-[0_12px_30px_rgba(251,191,36,0.1),inset_0_2px_5px_rgba(255,255,255,0.9)] dark:shadow-[0_10px_30px_rgba(0,0,0,0.3),inset_1px_1px_2px_rgba(255,255,255,0.1)]"
-              >
-                <div className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
-                <span>API keys required ({missingKeys().join(", ")}).</span>
-                <button onClick={() => setShowSettings(true)} className="ml-auto font-bold text-amber-500 hover:text-amber-600 dark:text-amber-300 dark:hover:text-amber-200">Configure now →</button>
-              </motion.div>
-            )}
-
             {error && (
               <motion.div 
                 initial={{ opacity: 0, y: -10 }}
