@@ -2,7 +2,9 @@ import React, { useState, useEffect } from "react";
 import { Key, X, Eye, EyeOff, CheckCircle2 } from "lucide-react";
 import { getKeys, saveKeys, missingKeys } from "../services/researcher";
 import ThemeToggle from "./ThemeToggle";
+import LanguageToggle from "./LanguageToggle";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslation } from "react-i18next";
 
 interface ApiSetupGuideProps {
   onKeysSet: () => void;
@@ -15,6 +17,7 @@ const ApiSetupGuide: React.FC<ApiSetupGuideProps> = ({ onKeysSet }) => {
   const [keys, setKeys] = useState({ groq: "", tavily: "", jina: "" });
   const [show, setShow] = useState({ groq: false, tavily: false, jina: false });
   const [saved, setSaved] = useState(false);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const k = getKeys();
@@ -46,8 +49,8 @@ const ApiSetupGuide: React.FC<ApiSetupGuideProps> = ({ onKeysSet }) => {
     <div className="space-y-2">
       <label className="flex items-center gap-2 text-xs font-bold text-slate-500 dark:text-white/60 uppercase tracking-wider">
         {label}
-        {required && <span className="text-red-500 dark:text-red-400/80 tracking-normal capitalize text-[10px]">(required)</span>}
-        {!required && <span className="text-slate-400 dark:text-white/30 tracking-normal capitalize text-[10px]">(optional)</span>}
+        {required && <span className="text-red-500 dark:text-red-400/80 tracking-normal capitalize text-[10px]">{t('required')}</span>}
+        {!required && <span className="text-slate-400 dark:text-white/30 tracking-normal capitalize text-[10px]">{t('optional')}</span>}
       </label>
       <div className="relative">
         <input
@@ -97,12 +100,15 @@ const ApiSetupGuide: React.FC<ApiSetupGuideProps> = ({ onKeysSet }) => {
               <div className="p-3 bg-white/60 dark:bg-[#2A2A2A]/80 rounded-2xl border border-white/60 dark:border-white/10 shadow-[0_4px_15px_rgba(0,0,0,0.05),inset_2px_2px_6px_rgba(255,255,255,0.8)] dark:shadow-[0_4px_15px_rgba(0,0,0,0.4),0_0_10px_rgba(33,150,243,0.1),inset_1px_1px_2px_rgba(255,255,255,0.1)]">
                 <Key className="w-6 h-6 text-[#33C6CC] dark:text-[#2196F3] drop-shadow-md" />
               </div>
-              <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight drop-shadow-sm">API Setup</h1>
+              <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight drop-shadow-sm">{t('api_setup')}</h1>
             </div>
-            <ThemeToggle />
+            <div className="flex gap-2">
+              <LanguageToggle />
+              <ThemeToggle />
+            </div>
           </div>
           <p className="relative z-10 text-sm font-medium text-slate-500 dark:text-white/60 leading-relaxed">
-            Verifai needs API keys to run the deep research pipeline. Keys are stored locally in your browser and never sent to any server.
+            {t('api_subtitle')}
           </p>
         </div>
 
@@ -115,7 +121,7 @@ const ApiSetupGuide: React.FC<ApiSetupGuideProps> = ({ onKeysSet }) => {
             >
               <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400 shrink-0" />
               <p className="text-sm font-medium text-red-700 dark:text-red-200">
-                Missing required keys:{" "}
+                {t('missing_keys')}
                 <span className="font-bold tracking-wide">{missingKeys().join(", ")}</span>
               </p>
             </motion.div>
@@ -126,44 +132,44 @@ const ApiSetupGuide: React.FC<ApiSetupGuideProps> = ({ onKeysSet }) => {
         <div className="px-8 py-8 space-y-6">
           <Field
             id="groq"
-            label="Groq API Key"
+            label={t('groq_label')}
             placeholder="gsk_…"
             value={keys.groq}
             required
             hint={
               <>
-                Get it at{" "}
+                {t('groq_hint_1')}
                 <a href="https://console.groq.com/keys" target="_blank" rel="noreferrer"
                   className="text-indigo-400 hover:text-indigo-300 font-bold hover:underline transition-colors">
                   console.groq.com
                 </a>
-                {" "}— super fast inference.
+                {t('groq_hint_2')}
               </>
             }
           />
           <Field
             id="tavily"
-            label="Tavily Search API Key"
+            label={t('tavily_label')}
             placeholder="tvly-…"
             value={keys.tavily}
             required
             hint={
               <>
-                Get it at{" "}
+                {t('tavily_hint_1')}
                 <a href="https://tavily.com" target="_blank" rel="noreferrer"
                   className="text-indigo-400 hover:text-indigo-300 font-bold hover:underline transition-colors">
                   tavily.com
                 </a>
-                {" "}— free 1,000 searches/month.
+                {t('tavily_hint_2')}
               </>
             }
           />
           <Field
             id="jina"
-            label="Jina Reader API Key"
+            label={t('jina_label')}
             placeholder="jina_…"
             value={keys.jina}
-            hint="Optional — enhances scraping quality. Get at jina.ai"
+            hint={t('jina_hint')}
           />
 
           <motion.button
@@ -182,10 +188,10 @@ const ApiSetupGuide: React.FC<ApiSetupGuideProps> = ({ onKeysSet }) => {
             {saved ? (
               <>
                 <CheckCircle2 className="w-5 h-5 text-white" />
-                Saved! Launching…
+                {t('saved')}
               </>
             ) : (
-              "Save Keys & Launch Verifai"
+              t('save_keys')
             )}
           </motion.button>
         </div>

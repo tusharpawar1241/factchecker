@@ -5,6 +5,8 @@ import ResearchLogs from "./ResearchLogs";
 import VerdictCard from "./VerdictCard";
 import { cn } from "../lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslation } from "react-i18next";
+import LanguageToggle from "./LanguageToggle";
 
 // ─── Main Dashboard ───────────────────────────────────────────────────────────
 const Dashboard: React.FC = () => {
@@ -14,6 +16,7 @@ const Dashboard: React.FC = () => {
   const [verdict, setVerdict] = useState<ResearchVerdict | null>(null);
   const [error, setError] = useState<string | null>(null);
   const logCounterRef = useRef(0);
+  const { t } = useTranslation();
 
   const addLog = useCallback((entry: Omit<LogEntry, "id" | "timestamp">) => {
     const id = `log-${++logCounterRef.current}`;
@@ -71,12 +74,13 @@ const Dashboard: React.FC = () => {
             <Shield className="w-6 h-6 dark:drop-shadow-[0_0_8px_rgba(33,150,243,0.6)]" />
           </div>
           <div>
-            <h1 className="text-xl font-extrabold tracking-tight text-[#1C1C1E] dark:text-white">Verifai</h1>
-            <p className="text-xs text-[#8E8E93] dark:text-white/50 font-medium">Deep Research Agent</p>
+            <h1 className="text-xl font-extrabold tracking-tight text-[#1C1C1E] dark:text-white">{t('app_name')}</h1>
+            <p className="text-xs text-[#8E8E93] dark:text-white/50 font-medium">{t('app_subtitle')}</p>
           </div>
         </div>
 
         <div className="flex items-center gap-3">
+          <LanguageToggle />
           <AnimatePresence>
             {(verdict || logs.length > 0) && (
               <motion.button 
@@ -101,10 +105,10 @@ const Dashboard: React.FC = () => {
       >
         <div className="max-w-3xl mx-auto">
           <h2 className="text-4xl md:text-5xl font-black tracking-tight mb-4 text-center text-[#1C1C1E] dark:text-white">
-            Is it <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#8A2BE2] to-[#33C6CC]">actually true?</span>
+            {t('title_part1')}<span className="bg-clip-text text-transparent bg-gradient-to-r from-[#8A2BE2] to-[#33C6CC]">{t('title_part2')}</span>
           </h2>
           <p className="text-center text-[#8E8E93] dark:text-white/60 text-sm mb-10 font-medium">
-            Paste a headline, claim, or viral post. The agent will search, scrape, and cross-reference multiple sources in real time.
+            {t('intro_text')}
           </p>
 
           {/* Colorful Ambient Glow & Search Bar */}
@@ -124,7 +128,7 @@ const Dashboard: React.FC = () => {
                   type="text"
                   value={claim}
                   onChange={(e) => setClaim(e.target.value)}
-                  placeholder="Paste a headline, claim, or URL..."
+                  placeholder={t('placeholder')}
                   className="w-full bg-transparent border-none text-gray-800 dark:text-white placeholder-gray-400 pl-16 pr-6 py-4 text-[17px] focus:outline-none focus:ring-0"
                   disabled={isRunning}
                 />
@@ -150,10 +154,10 @@ const Dashboard: React.FC = () => {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                   </svg>
-                  Researching…
+                  {t('researching')}
                 </>
               ) : (
-                "Deep Research"
+                t('deep_research')
               )}
             </button>
           </form>
@@ -168,7 +172,7 @@ const Dashboard: React.FC = () => {
                 exit={{ opacity: 0, y: -10 }}
                 className="mt-6 text-sm backdrop-blur-2xl border rounded-2xl px-6 py-4 shadow-[0_10px_30px_rgba(0,0,0,0.05),inset_2px_2px_4px_rgba(255,255,255,0.6)] dark:shadow-[0_10px_30px_rgba(0,0,0,0.3),inset_1px_1px_2px_rgba(255,255,255,0.1)] text-red-800 dark:text-red-200 bg-red-500/10 border-red-500/20"
               >
-                <p><span className="font-bold uppercase tracking-tight mr-2">Error:</span>{error}</p>
+                <p><span className="font-bold uppercase tracking-tight mr-2">{t('error_label')}</span>{error}</p>
               </motion.div>
             )}
           </AnimatePresence>
@@ -213,7 +217,7 @@ const Dashboard: React.FC = () => {
                     >
                       <Shield className="w-10 h-10 text-[#33C6CC] dark:text-white/30 drop-shadow-[0_0_6px_rgba(51,198,204,0.5)] dark:drop-shadow-none" />
                     </motion.div>
-                    <p className="text-[15px] font-medium leading-relaxed text-gray-500 dark:text-white/40">Synthesizing evidence...<br/>Verdict will appear here.</p>
+                    <p className="text-[15px] font-medium leading-relaxed text-gray-500 dark:text-white/40">{t('synthesizing_1')}<br/>{t('synthesizing_2')}</p>
                   </div>
                 )}
               </div>
@@ -230,8 +234,8 @@ const Dashboard: React.FC = () => {
         transition={{ delay: 0.5, duration: 1 }}
         className="relative z-10 mt-auto px-10 py-6 border-t border-black/5 dark:border-white/5 flex items-center justify-between text-xs text-gray-400 dark:text-white/40 font-medium"
       >
-        <span>Verifai • Powered by Groq (Llama 3.1) + Tavily + Jina</span>
-        <span>Local Privacy First</span>
+        <span>{t('footer_1')}</span>
+        <span>{t('footer_2')}</span>
       </motion.footer>
     </div>
   );

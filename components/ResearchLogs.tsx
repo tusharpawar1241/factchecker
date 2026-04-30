@@ -3,6 +3,7 @@ import { Terminal, Search, FileSearch, Brain, BarChart3, AlertTriangle, CheckCir
 import { cn } from "../lib/utils";
 import type { LogEntry } from "../services/researcher";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslation } from "react-i18next";
 
 interface ResearchLogsProps {
   logs: LogEntry[];
@@ -20,6 +21,7 @@ const PHASE_META: Record<LogEntry["phase"], { icon: React.ElementType; color: st
 
 const ResearchLogs: React.FC<ResearchLogsProps> = ({ logs, isRunning }) => {
   const bottomRef = useRef<HTMLDivElement>(null);
+  const { t } = useTranslation();
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -40,7 +42,7 @@ const ResearchLogs: React.FC<ResearchLogsProps> = ({ logs, isRunning }) => {
           shadow-sm dark:shadow-[0_8px_16px_rgba(0,0,0,0.4),inset_0_1px_2px_rgba(255,255,255,0.1)] text-indigo-500 dark:text-[#2196F3]">
           <Terminal className="w-5 h-5 dark:drop-shadow-[0_0_8px_rgba(33,150,243,0.6)]" />
         </div>
-        <span className="text-base font-bold tracking-wide text-gray-800 dark:text-white">Evidence Board</span>
+        <span className="text-base font-bold tracking-wide text-gray-800 dark:text-white">{t('evidence_board')}</span>
         
         {isRunning && (
           <span className="ml-auto flex items-center gap-2 text-xs font-bold text-teal-400 tracking-wider uppercase bg-teal-400/10 px-3 py-1.5 rounded-full border border-teal-400/20">
@@ -48,13 +50,13 @@ const ResearchLogs: React.FC<ResearchLogsProps> = ({ logs, isRunning }) => {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-teal-500"></span>
             </span>
-            Live
+            {t('live')}
           </span>
         )}
         {!isRunning && logs.length > 0 && (
           <span className="ml-auto flex items-center gap-1.5 text-xs font-bold text-green-400 uppercase tracking-wider bg-green-400/10 px-3 py-1.5 rounded-full border border-green-400/20">
             <CheckCircle2 className="w-4 h-4" />
-            Complete
+            {t('complete')}
           </span>
         )}
       </div>
@@ -68,7 +70,7 @@ const ResearchLogs: React.FC<ResearchLogsProps> = ({ logs, isRunning }) => {
               className="h-full flex flex-col items-center justify-center text-slate-400 dark:text-white/30 gap-4"
             >
               <Terminal className="w-12 h-12 opacity-20" />
-              <span className="font-medium tracking-wide">Awaiting research task...</span>
+              <span className="font-medium tracking-wide">{t('awaiting')}</span>
             </motion.div>
           )}
 

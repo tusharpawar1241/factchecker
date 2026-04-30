@@ -7,6 +7,8 @@ import type { ResearchVerdict } from "../services/researcher";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
+import i18n from "../i18n";
 
 interface VerdictCardProps {
   verdict: ResearchVerdict;
@@ -27,6 +29,7 @@ const LABEL_META: Record<Label, { icon: React.ElementType; glow: string; text: s
 const VerdictCard: React.FC<VerdictCardProps> = ({ verdict, headline }) => {
   const meta = LABEL_META[verdict.label] ?? LABEL_META["UNVERIFIED"];
   const Icon = meta.icon;
+  const { t } = useTranslation();
 
   const handleDownloadPDF = () => {
     const doc = new jsPDF();
@@ -38,14 +41,14 @@ const VerdictCard: React.FC<VerdictCardProps> = ({ verdict, headline }) => {
     doc.text(`Generated: ${ts}`, 14, 27);
 
     doc.setFontSize(13); doc.setTextColor(0); doc.setFont("helvetica", "bold");
-    doc.text("Claim Analysed:", 14, 37);
+    doc.text(i18n.t('claim_analysed'), 14, 37);
     doc.setFont("helvetica", "normal"); doc.setFontSize(11);
     doc.text(doc.splitTextToSize(headline, 182), 14, 44);
 
     let y = 44 + (doc.splitTextToSize(headline, 182).length * 6) + 8;
 
     doc.setFont("helvetica", "bold"); doc.setFontSize(13); doc.setTextColor(0);
-    doc.text("Verdict:", 14, y);
+    doc.text(i18n.t('verdict'), 14, y);
     doc.setFontSize(18);
     const scoreColor: [number, number, number] =
       verdict.truthScore >= 75 ? [34, 197, 94] :
@@ -54,7 +57,7 @@ const VerdictCard: React.FC<VerdictCardProps> = ({ verdict, headline }) => {
     doc.text(`${verdict.label}  (${verdict.truthScore}% Truth Score)`, 14, y + 9);
 
     y += 20; doc.setTextColor(0); doc.setFontSize(12); doc.setFont("helvetica", "bold");
-    doc.text("Summary:", 14, y);
+    doc.text(i18n.t('summary'), 14, y);
     doc.setFont("helvetica", "normal"); doc.setFontSize(10);
     doc.text(doc.splitTextToSize(verdict.summary, 182), 14, y + 7);
 
@@ -62,7 +65,7 @@ const VerdictCard: React.FC<VerdictCardProps> = ({ verdict, headline }) => {
 
     if (verdict.keyFindings.length) {
       doc.setFont("helvetica", "bold"); doc.setFontSize(12);
-      doc.text("Key Findings:", 14, y);
+      doc.text(i18n.t('key_findings') + ":", 14, y);
       autoTable(doc, {
         startY: y + 4,
         body: verdict.keyFindings.map((f, i) => [`${i + 1}.`, f]),
@@ -75,7 +78,7 @@ const VerdictCard: React.FC<VerdictCardProps> = ({ verdict, headline }) => {
 
     if (verdict.contradictions.length) {
       doc.setFont("helvetica", "bold"); doc.setFontSize(12); doc.setTextColor(0);
-      doc.text("Contradictions / Context Issues:", 14, y);
+      doc.text(i18n.t('contradictions') + ":", 14, y);
       autoTable(doc, {
         startY: y + 4,
         body: verdict.contradictions.map((c, i) => [`${i + 1}.`, c]),
@@ -88,7 +91,7 @@ const VerdictCard: React.FC<VerdictCardProps> = ({ verdict, headline }) => {
 
     if (verdict.sources.length) {
       doc.setFont("helvetica", "bold"); doc.setFontSize(12); doc.setTextColor(0);
-      doc.text("Sources:", 14, y);
+      doc.text(i18n.t('cited_sources') + ":", 14, y);
       autoTable(doc, {
         startY: y + 4,
         head: [["#", "Title", "URL"]],
@@ -143,7 +146,7 @@ const VerdictCard: React.FC<VerdictCardProps> = ({ verdict, headline }) => {
             <span className={cn("text-3xl font-black tabular-nums drop-shadow-sm", meta.text)}>
               {verdict.truthScore}
             </span>
-            <span className="text-[10px] font-bold text-slate-500 dark:text-white/50 uppercase tracking-widest mt-0.5">Score</span>
+            <span className="text-[10px] font-bold text-slate-500 dark:text-white/50 uppercase tracking-widest mt-0.5">{t('score')}</span>
           </div>
         </div>
 
@@ -154,7 +157,7 @@ const VerdictCard: React.FC<VerdictCardProps> = ({ verdict, headline }) => {
               {verdict.label}
             </h2>
           </div>
-          <p className="text-sm font-medium text-slate-500 dark:text-white/60">Final Fact-Check Verdict</p>
+          <p className="text-sm font-medium text-slate-500 dark:text-white/60">{t('final_verdict')}</p>
         </div>
       </div>
 
@@ -175,7 +178,7 @@ const VerdictCard: React.FC<VerdictCardProps> = ({ verdict, headline }) => {
         {verdict.keyFindings.length > 0 && (
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }}>
             <div className="flex items-center gap-2 text-xs font-bold text-slate-400 dark:text-white/40 uppercase tracking-widest mb-4">
-              <ListChecks className="w-4 h-4" /> Key Findings
+              <ListChecks className="w-4 h-4" /> {t('key_findings')}
             </div>
             <ul className="space-y-3">
               {verdict.keyFindings.map((f, i) => (
@@ -194,7 +197,7 @@ const VerdictCard: React.FC<VerdictCardProps> = ({ verdict, headline }) => {
         {verdict.contradictions.length > 0 && (
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 }}>
             <div className="flex items-center gap-2 text-xs font-bold text-slate-400 dark:text-white/40 uppercase tracking-widest mb-4 mt-6">
-              <GitCompareArrows className="w-4 h-4" /> Contradictions Found
+              <GitCompareArrows className="w-4 h-4" /> {t('contradictions')}
             </div>
             <ul className="space-y-3">
               {verdict.contradictions.map((c, i) => (
@@ -211,7 +214,7 @@ const VerdictCard: React.FC<VerdictCardProps> = ({ verdict, headline }) => {
         {verdict.sources.length > 0 && (
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.5 }}>
             <div className="text-xs font-bold text-slate-400 dark:text-white/40 uppercase tracking-widest mb-4 mt-6">
-              Cited Sources
+              {t('cited_sources')}
             </div>
             <ul className="grid grid-cols-1 gap-2 max-h-48 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-white/10">
               {verdict.sources.map((s, i) => {
@@ -254,7 +257,7 @@ const VerdictCard: React.FC<VerdictCardProps> = ({ verdict, headline }) => {
         )}
       >
         <Download className="w-4 h-4" />
-        Download Research Report
+        {t('download_pdf')}
       </motion.button>
 
     </motion.div>
