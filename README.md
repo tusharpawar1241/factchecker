@@ -1,75 +1,107 @@
 <div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
+<img width="1200" alt="Verifai Home Screen" src="./imageofhome.png" />
 
 # Verifai
 
-**Intelligent, Secure, and Real-Time Fact-Checking Agent**
+### Truth, with receipts.
+
+Real-time claim verification powered by autonomous web research and fast LLM reasoning.
 </div>
 
 ---
 
-## The Vision
-In an era of rampant misinformation, **Verifai** serves as your ultimate truth-seeking companion. We built Verifai to empower journalists, researchers, and everyday users to instantly verify claims using autonomous AI research agents. It doesn't just give you an answer; it shows you the evidence, analyzes the sources, and delivers a comprehensive, unbiased verdict.
+## Why Verifai
 
-## Key Features
-- **Real-Time Research Pipeline:** Harnesses autonomous search agents (Tavily & Jina) to instantly scour the web for credible sources.
-- **Advanced AI Reasoning:** Powered by **Groq (Llama 3.1 70B)** for lightning-fast, highly accurate claim analysis and synthesis.
-- **Streaming Intelligence:** Watch the agent's thought process and evidence gathering in real-time with continuous data streaming.
-- **Liquid Glassmorphism UI:** A stunning, premium user interface built with React and Framer Motion, offering fluid, organic animations.
-- **Enterprise-Grade Security:** 100% secure architecture with a Vercel serverless proxy backend ensuring no API keys are ever exposed to the client.
-- **Report Generation:** Easily export verified fact-checks and research summaries as PDF reports.
+Misinformation moves fast. Verification should move faster.
 
-## Technology Stack
-- **Frontend Framework:** React 19 + Vite
-- **Styling & UI:** Tailwind CSS, Framer Motion (Glassmorphism design language), Lucide React
-- **Backend Infrastructure:** Vercel Serverless Functions (`/api/verify.js`)
-- **LLM Engine:** Groq API (Llama 3.1 70B)
-- **Search & Scraping:** Tavily Search API, Jina AI
-- **Utilities:** jsPDF (for exporting analysis)
+**Verifai** helps users validate claims with:
+- grounded evidence from live web sources,
+- clear, structured reasoning, and
+- a secure architecture that keeps API keys off the client.
 
-## Security First Architecture
-We prioritize security. Unlike typical hackathon projects that expose API keys in the frontend, Verifai uses a **Secure Backend Proxy**. All API-dependent research logic (Tavily, Jina, and Groq) has been migrated to a serverless Vercel function. The frontend simply communicates via secure POST requests using a stream-based response model, ensuring keys remain completely hidden from the browser.
+Whether you are a student, researcher, journalist, or a curious reader, Verifai is designed to turn "Is this true?" into an auditable answer.
 
-## Run Locally
+## Highlights
 
-**Prerequisites:**  
-- Node.js (v18+)
-- API Keys for Groq, Tavily, and Jina
+- **Live evidence retrieval** via Tavily and Jina-backed research flows.
+- **Fast analysis engine** using Groq-hosted Llama models for low-latency responses.
+- **Streaming experience** so users can follow verification progress in real time.
+- **Polished interface** with React and Framer Motion for a modern, fluid UX.
+- **Exportable reports** generated as PDFs for sharing and documentation.
+- **Security-first by default** through a server-side verification proxy.
 
-1. **Clone the repository:**
-   ```bash
-   git clone <repository-url>
-   cd factchecker
-   ```
+## How It Works
 
-2. **Install dependencies:**
-   ```bash
-   npm install
-   ```
+1. User submits a claim in the frontend app.
+2. The app calls a secure backend endpoint (`/api/verify.js`).
+3. The backend orchestrates source search + content retrieval.
+4. The LLM evaluates sources and generates a reasoned verdict.
+5. Results stream back to the UI and can be exported as a report.
 
-3. **Configure Environment Variables:**
-   Create a `.env.local` file in the root directory and add your API keys:
-   ```env
-   GROQ_API_KEY=your_groq_api_key
-   TAVILY_API_KEY=your_tavily_api_key
-   JINA_API_KEY=your_jina_api_key
-   ```
-   *(Note: Adjust the variable names based on your project's specific configuration)*
+## Tech Stack
 
-4. **Start the development server:**
-   ```bash
-   npm run dev
-   ```
+- **Frontend:** React 19, Vite, TypeScript
+- **UI/UX:** Framer Motion, Lucide React, utility-first styling helpers
+- **Backend:** Vercel Serverless Functions
+- **AI & Research:** Groq API, Tavily API, Jina API
+- **Document Export:** jsPDF, jspdf-autotable
+- **Localization:** i18next, react-i18next
 
-5. **Open the app:**
-   Visit `http://localhost:5173` in your browser.
+## Security Architecture
 
-## What's Next
-- **Multi-Modal Verification:** Analyzing images and video for deepfakes.
-- **Browser Extension:** Seamlessly verify claims directly while reading news articles.
-- **Community Consensus:** Crowdsourced human reviews alongside AI verdicts.
+Verifai follows a simple rule: **secrets never ship to the browser**.
+
+All provider calls (Groq, Tavily, Jina) are routed through backend functions. The frontend only communicates with trusted server endpoints, which means API keys remain protected and out of client bundles.
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js 18+
+- npm
+- API keys for Groq, Tavily, and Jina
+
+### 1) Install dependencies
+
+```bash
+npm install
+```
+
+### 2) Configure environment variables
+
+Create `.env.local` in the project root:
+
+```env
+GROQ_API_KEY=your_groq_api_key
+TAVILY_API_KEY=your_tavily_api_key
+JINA_API_KEY=your_jina_api_key
+```
+
+You can also copy values from `.env.example` and fill them in.
+
+### 3) Run the app locally
+
+```bash
+npm run dev
+```
+
+Open `http://localhost:5173`.
+
+## Available Scripts
+
+- `npm run dev` - start local development server
+- `npm run build` - create production build
+- `npm run preview` - preview production build locally
+
+## Roadmap
+
+- Multi-modal verification (images/video)
+- Browser extension for in-page claim checks
+- Human-in-the-loop review and consensus signals
+- Source credibility scoring and explainability upgrades
 
 ---
+
 <div align="center">
-Built with 🩵 for Truth and Transparency.
+Built for clarity, accountability, and trustworthy information.
 </div>
